@@ -16,10 +16,17 @@
  */
 package com.intel.hibench.streambench.gearpump
 
+<<<<<<< Updated upstream
 import com.intel.hibench.streambench.common.{ConfigLoader, Platform, TempLogger}
 import com.intel.hibench.streambench.gearpump.application._
 import com.intel.hibench.streambench.gearpump.metrics.MetricsReporter
 import com.intel.hibench.streambench.gearpump.source.{KafkaSourceProvider, InMemorySourceProvider}
+=======
+import com.intel.hibench.streambench.common.ConfigLoader
+import com.intel.hibench.streambench.gearpump.application._
+import com.intel.hibench.streambench.gearpump.metrics.MetricsReporter
+import com.intel.hibench.streambench.gearpump.source.{InMemorySourceProvider, KafkaSourceProvider}
+>>>>>>> Stashed changes
 import com.intel.hibench.streambench.gearpump.util.GearpumpConfig
 import org.apache.gearpump.cluster.UserConfig
 import org.apache.gearpump.cluster.client.ClientContext
@@ -32,9 +39,14 @@ object RunBench {
   def run(args: Array[String]) {
     val context = ClientContext()
     implicit val system = context.system
+<<<<<<< Updated upstream
     implicit val sourceProvider = new KafkaSourceProvider()
     val confLoader = new ConfigLoader(args(0))
     val gearConf = getConfig(confLoader)
+=======
+    implicit val sourceProvider = new InMemorySourceProvider()
+    val gearConf = getConfig(args(0))
+>>>>>>> Stashed changes
 
     val benchmark = gearConf.benchName match {
       case "project" => new ProjectStream(gearConf)
@@ -46,6 +58,7 @@ object RunBench {
       case _ => new IdentityApp(gearConf)
     }
 
+<<<<<<< Updated upstream
     val reportDir = confLoader.getProperty("hibench.report.dir")
     val logPath = reportDir + "/streamingbench/gearpump/streambenchlog.txt"
     val logger = new TempLogger(logPath, Platform.Gearpump, benchmark.benchName)
@@ -58,6 +71,18 @@ object RunBench {
   }
 
   private def getConfig(conf: ConfigLoader): GearpumpConfig = {
+=======
+    val benchConf = UserConfig.empty.withValue(GearpumpConfig.BENCHCONFIG, gearConf)
+    val appId = context.submit(benchmark.application(benchConf))
+    val metricsReporter = new MetricsReporter(appId, context)
+    println(s"=============Run time ${metricsReporter.getRunTime()}")
+    context.close()
+  }
+
+  private def getConfig(confPath: String): GearpumpConfig = {
+    val conf = new ConfigLoader(confPath)
+
+>>>>>>> Stashed changes
     val benchName = conf.getProperty("hibench.streamingbench.benchname")
     val topic = conf.getProperty("hibench.streamingbench.topic_name")
     val zkHost = conf.getProperty("hibench.streamingbench.zookeeper.host")
@@ -70,13 +95,24 @@ object RunBench {
     val debug = conf.getProperty("hibench.streamingbench.debug").toBoolean
     val directMode = conf.getProperty("hibench.streamingbench.direct_mode").toBoolean
     val brokerList = if (directMode) conf.getProperty("hibench.streamingbench.brokerList") else ""
+<<<<<<< Updated upstream
+=======
+    val totalParallel = conf.getProperty("hibench.yarn.executor.num").toInt * conf.getProperty("hibench.yarn.executor.cores").toInt
+>>>>>>> Stashed changes
 
     val pattern = conf.getProperty("hibench.streamingbench.pattern")
     val fieldIndex = conf.getProperty("hibench.streamingbench.field_index").toInt
     val separator = conf.getProperty("hibench.streamingbench.separator")
     val prob = conf.getProperty("hibench.streamingbench.prob").toDouble
+<<<<<<< Updated upstream
 
     GearpumpConfig(benchName, zkHost, brokerList, consumerGroup, topic, kafkaPartitions,
       recordCount, parallelism, pattern, fieldIndex, separator, prob)
+=======
+    val reportDir = conf.getProperty("hibench.report.dir")
+
+    GearpumpConfig(benchName, zkHost, brokerList, consumerGroup, topic, kafkaPartitions,
+      parallelism, pattern, fieldIndex, separator, prob)
+>>>>>>> Stashed changes
   }
 }

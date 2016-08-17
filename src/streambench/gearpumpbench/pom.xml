@@ -72,6 +72,14 @@
             <version>${gearpumpVersion}</version>
         </dependency>
         <dependency>
+<<<<<<< Updated upstream
+=======
+            <groupId>com.intel.hibench.streambench</groupId>
+            <artifactId>streaming-bench-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+>>>>>>> Stashed changes
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>
             <scope>test</scope>
@@ -83,11 +91,14 @@
             <scope>test</scope>
             <version>${scalacheck.version}</version>
         </dependency>
+<<<<<<< Updated upstream
         <dependency>
             <groupId>com.intel.hibench.streambench</groupId>
             <artifactId>streaming-bench-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+=======
+>>>>>>> Stashed changes
     </dependencies>
 
     <build>
