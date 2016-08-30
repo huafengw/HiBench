@@ -412,7 +412,7 @@ def generate_optional_value():  # get some critical values from environment or m
     if not HibenchConf.get("hibench.hadoop.reducer.name", ""):
         HibenchConf["hibench.hadoop.reducer.name"] = "mapred.reduce.tasks" if HibenchConf["hibench.hadoop.version"] == "hadoop1" else "mapreduce.job.reduces"
         HibenchConfRef["hibench.hadoop.reducer.name"] = "Inferred by: 'hibench.hadoop.version'"
-
+'''
     # probe masters, slaves hostnames
     # determine running mode according to spark master configuration
     if not (HibenchConf.get("hibench.masters.hostnames", "") or HibenchConf.get("hibench.slaves.hostnames", "")): # no pre-defined hostnames, let's probe
@@ -426,10 +426,10 @@ def generate_optional_value():  # get some critical values from environment or m
             HibenchConfRef['hibench.masters.hostnames'] =  "Probed by the evidence of 'hibench.spark.master=%s'" % spark_master
             try:
                 log(spark_master, HibenchConf['hibench.masters.hostnames'])
-                with closing(urllib.urlopen('http://%s:8080' % HibenchConf['hibench.masters.hostnames'])) as page:
+                with closing(urllib.urlopen('http://%s:8180' % HibenchConf['hibench.masters.hostnames'])) as page:
                     worker_hostnames=[re.findall("http:\/\/([a-zA-Z\-\._0-9]+):8081", x)[0] for x in page.readlines() if "8081" in x and "worker" in x]
                 HibenchConf['hibench.slaves.hostnames'] = " ".join(worker_hostnames)
-                HibenchConfRef['hibench.slaves.hostnames'] = "Probed by parsing "+ 'http://%s:8080' % HibenchConf['hibench.masters.hostnames']
+                HibenchConfRef['hibench.slaves.hostnames'] = "Probed by parsing "+ 'http://%s:8180' % HibenchConf['hibench.masters.hostnames']
             except Exception as e:
                 assert 0, "Get workers from spark master's web UI page failed, reason:%s\nPlease check your configurations, network settings, proxy settings, or set `hibench.masters.hostnames` and `hibench.slaves.hostnames` manually to bypass auto-probe" % e
         elif spark_master.startswith("yarn"): # yarn mode
@@ -477,7 +477,7 @@ def generate_optional_value():  # get some critical values from environment or m
     HibenchConfRef['hibench.dfsioe.map.java_opts'] = "Probed by shell command:'%s'" % cmd1
     HibenchConf['hibench.dfsioe.red.java_opts'] = shell(cmd2)
     HibenchConfRef['hibench.dfsioe.red.java_opts'] = "Probed by shell command:'%s'" % cmd2
-
+'''
 
 def export_config(workload_name, workload_tail):
     join = os.path.join
