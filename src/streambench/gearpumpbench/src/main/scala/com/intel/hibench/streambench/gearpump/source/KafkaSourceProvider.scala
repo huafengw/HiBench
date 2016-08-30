@@ -16,6 +16,7 @@
  */
 package com.intel.hibench.streambench.gearpump.source
 
+import java.time.Instant
 import java.util.Properties
 
 import akka.actor.ActorSystem
@@ -24,10 +25,10 @@ import com.twitter.bijection.Injection
 import org.apache.gearpump.Message
 import org.apache.gearpump.streaming.Processor
 import org.apache.gearpump.streaming.kafka.KafkaSource
+import org.apache.gearpump.streaming.kafka.lib.{MessageAndWatermark, KafkaMessageDecoder}
 import org.apache.gearpump.streaming.kafka.util.KafkaConfig
 import org.apache.gearpump.streaming.source.DataSourceProcessor
 import org.apache.gearpump.streaming.task.Task
-import org.apache.gearpump.streaming.transaction.api.MessageDecoder
 
 class KafkaSourceProvider(implicit actorSystem: ActorSystem) extends SourceProvider{
   override def getSourceProcessor(conf: GearpumpConfig): Processor[_ <: Task] = {
@@ -46,9 +47,10 @@ class KafkaSourceProvider(implicit actorSystem: ActorSystem) extends SourceProvi
   }
 }
 
-class KeyValueDecoder extends MessageDecoder {
-  override def fromBytes(key: Array[Byte], value: Array[Byte]): Message = {
-    Message(Injection.invert[String, Array[Byte]](value).get,
-      Injection.invert[String, Array[Byte]](key).get.toLong)
+class KeyValueDecoder extends KafkaMessageDecoder {
+  override def fromBytes(key: Array[Byte], value: Array[Byte]): MessageAndWatermark = {
+    val watermark = Injection.invert[String, Array[Byte]](key).get.toLong
+    val message = Message(Injection.invert[String, Array[Byte]](value).get, watermark)
+    MessageAndWatermark(message, Instant.ofEpochMilli(watermark))
   }
 }
