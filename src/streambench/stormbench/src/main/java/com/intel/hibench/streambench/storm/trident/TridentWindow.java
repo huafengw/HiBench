@@ -49,6 +49,7 @@ public class TridentWindow extends SingleTridentSpoutTops {
     TridentTopology topology = new TridentTopology();
     topology.newStream("kafka", source)
         .each(new Parser(), new Fields("ip", "time"))
+        .project(new Fields("ip", "time"))
         .parallelismHint(config.spoutThreads)
         .groupBy(new Fields("ip")).toStream()
         .slidingWindow(new BaseWindowedBolt.Duration((int) config.windowDuration, TimeUnit.MILLISECONDS),
