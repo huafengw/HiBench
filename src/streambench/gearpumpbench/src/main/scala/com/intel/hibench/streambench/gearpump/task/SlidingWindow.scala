@@ -38,7 +38,7 @@ class SlidingWindow(taskContext: TaskContext, conf: UserConfig) extends Task(tas
 
   override def onNext(message: Message): Unit = {
     val ip = message.msg.asInstanceOf[String]
-    val msgTime = message.timestamp
+    val msgTime = System.currentTimeMillis()
     getWindows(msgTime).foreach { window =>
       val countsByIp = windowCounts.getOrDefault(window, new UnifiedMap[String, (TimeStamp, Long)])
       val (minTime, count) = countsByIp.getOrDefault(ip, (msgTime, 0L))
@@ -47,17 +47,22 @@ class SlidingWindow(taskContext: TaskContext, conf: UserConfig) extends Task(tas
     }
 
     val reporter = new KafkaReporter(benchConfig.reporterTopic, benchConfig.brokerList)
-    var windowStart = windowCounts.firstKey()
-    while (taskContext.upstreamMinClock >= (windowStart + windowDuration)) {
-      val countsByIp = windowCounts.remove(windowStart)
-      countsByIp.forEachValue(new Procedure[(TimeStamp, Long)]() {
 
-        override def value(tuple: (TimeStamp, Long)): Unit = {
-          reporter.report(tuple._1, System.currentTimeMillis())
-        }
-      })
-      windowStart = windowCounts.firstKey()
-    }
+
+      var hasNext = true
+      while (hasNext && !windowCounts.isEmpty) {
+        val windowStart = windowCounts.firstKey()
+        if (msgTime >= (windowStart + windowDuration)) {
+          val countsByIp = windowCounts.remove(windowStart)
+          countsByIp.forEachValue(new Procedure[(TimeStamp, Long)]() {
+            override def value(tuple: (TimeStamp, Long)): Unit = {
+              reporter.report(tuple._1, msgTime)
+            }
+          })
+        } else {
+          hasNext = false
+        }       
+      }
   }
 
 
@@ -77,3 +82,4 @@ class SlidingWindow(taskContext: TaskContext, conf: UserConfig) extends Task(tas
     timestamp - (timestamp + windowStep) % windowStep
   }
 }
+
