@@ -22,7 +22,7 @@ import com.intel.hibench.gearpumpbench.task.{Parser, Sum}
 import com.intel.hibench.gearpumpbench.util.GearpumpConfig
 import com.intel.hibench.common.streaming.TestCase
 import org.apache.gearpump.cluster.UserConfig
-import org.apache.gearpump.partitioner.ShufflePartitioner
+import org.apache.gearpump.streaming.partitioner.ShufflePartitioner
 import org.apache.gearpump.streaming.{Processor, StreamApplication}
 import org.apache.gearpump.util.Graph
 import org.apache.gearpump.util.Graph._

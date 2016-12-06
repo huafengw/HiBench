@@ -16,6 +16,8 @@
  */
 package com.intel.hibench.gearpumpbench.source
 
+import java.time.Instant
+
 import com.intel.hibench.gearpumpbench.source.InMemorySourceProvider.InMemorySourceTask
 import com.intel.hibench.gearpumpbench.util.GearpumpConfig
 import org.apache.gearpump.streaming.Processor
@@ -23,7 +25,6 @@ import org.apache.gearpump.cluster.UserConfig
 import org.apache.gearpump.streaming.task.Task
 import org.apache.gearpump.streaming.task.TaskContext
 import org.apache.gearpump.Message
-import org.apache.gearpump.streaming.task.StartTime
 
 class InMemorySourceProvider extends SourceProvider {
   override def getSourceProcessor(conf: GearpumpConfig): Processor[_ <: Task] = {
@@ -53,7 +54,7 @@ object InMemorySourceProvider {
         |   limitations under the License.
       """.stripMargin
 
-    override def onStart(startTime: StartTime): Unit = {
+    override def onStart(startTime: Instant): Unit = {
       self ! Message("start")
     }
 
